@@ -94,7 +94,11 @@ main {
 
 .frame {
   display: block;
+  position: relative;
   width: 100%;
+  /* The originals are 4:5. Generated Dits letterbox into the same box so the
+     grid stays even without cropping anyone's feet off. */
+  aspect-ratio: 4 / 5;
   padding: 0;
   border: 0;
   border-bottom: 1px solid var(--border);
@@ -104,9 +108,7 @@ main {
 }
 
 .frame img {
-  display: block;
-  width: 100%;
-  height: auto;
+  object-fit: contain;
   transition: transform 200ms ease;
 }
 
@@ -134,7 +136,7 @@ main {
   flex: 1;
 }
 
-.meta h2 {
+.meta h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -201,5 +203,102 @@ main {
   }
   .card:hover .frame img {
     transform: none;
+  }
+}
+
+/* Sections */
+
+.section {
+  margin-bottom: 48px;
+}
+
+.section > h2 {
+  margin: 0 0 18px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Generate form */
+
+.generate {
+  margin-bottom: 48px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.generate label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.generate .row {
+  display: flex;
+  gap: 10px;
+}
+
+.generate input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.generate input::placeholder {
+  color: #6b6b76;
+}
+
+.generate input:focus-visible,
+.generate button:focus-visible {
+  outline: 2px solid var(--dit);
+  outline-offset: 1px;
+}
+
+.generate button {
+  padding: 11px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--dit);
+  color: #1a1500;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.generate button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.generate .hint,
+.generate .error {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+}
+
+.generate .hint {
+  color: var(--muted);
+}
+
+.generate .error {
+  color: var(--err);
+}
+
+@media (max-width: 520px) {
+  .generate .row {
+    flex-direction: column;
   }
 }
