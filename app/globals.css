@@ -1,0 +1,205 @@
+:root {
+  --bg: #0b0b0d;
+  --surface: #141417;
+  --surface-hover: #1b1b20;
+  --border: #26262c;
+  --border-strong: #3a3a44;
+  --text: #f2f2f4;
+  --muted: #93939e;
+  --dit: #f5c518;
+  --dit-dim: rgba(245, 197, 24, 0.14);
+  --ok: #4ade80;
+  --err: #f87171;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -10%,
+    rgba(245, 197, 24, 0.07),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
+}
+
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 72px 24px 96px;
+}
+
+/* Masthead */
+
+.masthead {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #ffffff 20%, var(--dit) 160%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.masthead p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* Grid */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+/* Card */
+
+.card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: #202024;
+  cursor: pointer;
+  appearance: none;
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 200ms ease;
+}
+
+.card:hover .frame img {
+  transform: scale(1.03);
+}
+
+.frame:focus-visible,
+.copy:focus-visible {
+  outline: 2px solid var(--dit);
+  outline-offset: -2px;
+}
+
+/* Caption */
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  padding: 16px;
+}
+
+.meta .text {
+  flex: 1;
+}
+
+.meta h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.meta p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* Copy button */
+
+.copy {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.copy:hover {
+  background: var(--dit-dim);
+  border-color: var(--dit);
+  color: var(--dit);
+}
+
+.copy[data-state="copied"] {
+  border-color: var(--ok);
+  color: var(--ok);
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.copy[data-state="error"] {
+  border-color: var(--err);
+  color: var(--err);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* Footer */
+
+.footer {
+  margin-top: 56px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .frame img {
+    transition: none;
+  }
+  .card:hover {
+    transform: none;
+  }
+  .card:hover .frame img {
+    transform: none;
+  }
+}
