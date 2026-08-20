@@ -16,6 +16,24 @@ export default async function Home() {
     .list()
     .catch(() => []);
 
+  // Generated Dits join the end of the same list as the originals.
+  const gallery = [
+    ...dits.map((dit) => ({
+      key: dit.slug,
+      name: dit.name,
+      description: dit.description,
+      src: dit.file,
+      copySrc: dit.file,
+    })),
+    ...generated.map((dit) => ({
+      key: dit.id,
+      name: dit.prompt,
+      description: new Date(dit.createdAt).toLocaleDateString(),
+      src: dit.url,
+      copySrc: copySrc(dit.url),
+    })),
+  ];
+
   return (
     <main>
       <header className="masthead">
@@ -27,40 +45,21 @@ export default async function Home() {
         enabled={Boolean(process.env.OPENAI_API_KEY) && storageReady()}
       />
 
-      {generated.length > 0 && (
-        <section className="section">
-          <h2>Made by the realm</h2>
-          <div className="grid">
-            {generated.map((dit) => (
-              <DitCard
-                key={dit.id}
-                name={dit.prompt}
-                description={new Date(dit.createdAt).toLocaleDateString()}
-                src={dit.url}
-                copySrc={copySrc(dit.url)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="section">
-        <h2>The originals</h2>
-        <div className="grid">
-          {dits.map((dit, index) => (
-            <DitCard
-              key={dit.slug}
-              name={dit.name}
-              description={dit.description}
-              src={dit.file}
-              priority={index === 0}
-            />
-          ))}
-        </div>
-      </section>
+      <div className="grid">
+        {gallery.map((dit, index) => (
+          <DitCard
+            key={dit.key}
+            name={dit.name}
+            description={dit.description}
+            src={dit.src}
+            copySrc={dit.copySrc}
+            priority={index === 0}
+          />
+        ))}
+      </div>
 
       <footer className="footer">
-        <p>{dits.length + generated.length} Dits and counting</p>
+        <p>{gallery.length} Dits and counting</p>
       </footer>
     </main>
   );

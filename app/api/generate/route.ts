@@ -62,13 +62,12 @@ export async function POST(request: Request) {
       image: await toFile(fs.createReadStream(REFERENCE), "thedit.png", {
         type: "image/png",
       }),
+      // The reference image is the source of truth for the character, so the
+      // prompt only says what to change and never describes The Dit.
       prompt: [
-        "This is The Dit: a small, round, matte-yellow vinyl figure with a large",
-        "smooth head, simple black dot eyes and a thin neutral mouth.",
-        "Create a new version of this exact character, keeping its body shape,",
-        "proportions and yellow colour identical. Photograph it as a collectible",
-        "vinyl toy, full body, centred, on a plain neutral studio backdrop with",
-        "soft even lighting, matching the reference photo's style.",
+        "Create a new version of the character in the reference image, keeping",
+        "the character itself exactly as it appears there. Match the reference",
+        "photo's style, framing and lighting.",
         `The new version: ${prompt.trim()}`,
       ].join(" "),
       size: SIZE as "1024x1536",
