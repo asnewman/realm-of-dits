@@ -96,9 +96,10 @@ main {
   display: block;
   position: relative;
   width: 100%;
-  /* The originals are 4:5. Generated Dits letterbox into the same box so the
-     grid stays even without cropping anyone's feet off. */
-  aspect-ratio: 4 / 5;
+  /* Matches the 1024x1536 the generator produces. The 4:5 originals letterbox
+     into it rather than being cropped, and copying still yields the full
+     original file either way. */
+  aspect-ratio: 2 / 3;
   padding: 0;
   border: 0;
   border-bottom: 1px solid var(--border);
@@ -299,7 +300,7 @@ main {
 .generate .preview {
   flex: 0 0 140px;
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 2 / 3;
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
