@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import OpenAI, { toFile } from "openai";
 
-import { dayKey } from "@/lib/generated";
+import { dayKey, toPublic } from "@/lib/generated";
+import { ensureOwner } from "@/lib/owner";
 import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 import { getStore, storageReady } from "@/lib/storage";
 
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
     });
   }
 
+  const owner = await ensureOwner();
   const store = getStore();
   const today = dayKey();
 
@@ -93,16 +95,22 @@ export async function POST(request: Request) {
     return fail("The Dit didn't come out. Try again", 502);
   }
 
+  // Stored as a draft: it stays out of the gallery until the person who made
+  // it adds a description and saves.
   try {
-    const dit = await store.save(
+    const dit = await store.create(
       {
         id: crypto.randomUUID(),
         prompt: prompt.trim(),
+        description: "",
+        url: "",
         createdAt: new Date().toISOString(),
+        owner,
+        draft: true,
       },
       image,
     );
-    return Response.json({ dit }, { status: 201 });
+    return Response.json({ dit: toPublic(dit, owner) }, { status: 201 });
   } catch (error) {
     console.error("Saving the Dit failed", error);
     return fail("The Dit was made but couldn't be saved", 500);

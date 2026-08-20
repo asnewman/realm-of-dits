@@ -287,3 +287,105 @@ main {
     flex-direction: column;
   }
 }
+
+/* Review step */
+
+.generate.review {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.generate .preview {
+  flex: 0 0 140px;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #202024;
+}
+
+.generate .preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.generate .fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.generate .fields input {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.generate .fields .row {
+  margin-top: 14px;
+}
+
+.generate button.ghost {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.generate button.ghost:hover:not(:disabled) {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+@media (max-width: 520px) {
+  .generate.review {
+    flex-direction: column;
+  }
+  .generate .preview {
+    flex-basis: auto;
+    width: 140px;
+  }
+}
+
+/* Card actions */
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions .copy {
+  flex: 1;
+}
+
+.remove {
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.remove:hover:not(:disabled),
+.remove[data-confirming] {
+  border-color: var(--err);
+  color: var(--err);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.remove:focus-visible {
+  outline: 2px solid var(--dit);
+  outline-offset: -2px;
+}
+
+.remove:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

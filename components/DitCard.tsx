@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { copyImageToClipboard } from "@/lib/copyImage";
 
@@ -21,6 +22,8 @@ export type DitCardProps = {
   priority?: boolean;
   /** Generated Dits are served from blob storage and can't be optimized locally. */
   unoptimized?: boolean;
+  /** Set only on generated Dits this visitor made, which they can remove. */
+  deletableId?: string;
 };
 
 export function DitCard({
@@ -30,15 +33,28 @@ export function DitCard({
   copySrc,
   priority,
   unoptimized,
+  deletableId,
 }: DitCardProps) {
+  const router = useRouter();
   const [state, setState] = useState<CopyState>("idle");
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const armed = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       if (timer.current) clearTimeout(timer.current);
+      if (armed.current) clearTimeout(armed.current);
     };
   }, []);
+
+  /** Deleting is irreversible, so the button disarms itself if left alone. */
+  function arm() {
+    setConfirming(true);
+    if (armed.current) clearTimeout(armed.current);
+    armed.current = setTimeout(() => setConfirming(false), 3000);
+  }
 
   async function copy() {
     if (timer.current) clearTimeout(timer.current);
@@ -49,6 +65,26 @@ export function DitCard({
       setState("error");
     }
     timer.current = setTimeout(() => setState("idle"), 2000);
+  }
+
+  async function remove() {
+    if (!deletableId || deleting) return;
+    if (armed.current) clearTimeout(armed.current);
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/dits/${deletableId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok && response.status !== 404) {
+        setDeleting(false);
+        setConfirming(false);
+        return;
+      }
+      router.refresh();
+    } catch {
+      setDeleting(false);
+      setConfirming(false);
+    }
   }
 
   return (
@@ -74,9 +110,25 @@ export function DitCard({
           <h3>{name}</h3>
           <p>{description}</p>
         </div>
-        <button type="button" className="copy" data-state={state} onClick={copy}>
-          {labels[state]}
-        </button>
+        <div className="actions">
+          <button type="button" className="copy" data-state={state} onClick={copy}>
+            {labels[state]}
+          </button>
+
+          {deletableId && (
+            <button
+              type="button"
+              className="remove"
+              data-confirming={confirming || undefined}
+              disabled={deleting}
+              onClick={() => (confirming ? remove() : arm())}
+              onBlur={() => setConfirming(false)}
+              aria-label={confirming ? `Confirm deleting ${name}` : `Delete ${name}`}
+            >
+              {deleting ? "Deleting…" : confirming ? "Sure?" : "Delete"}
+            </button>
+          )}
+        </div>
       </figcaption>
     </figure>
   );

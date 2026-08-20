@@ -1,6 +1,8 @@
 import { DitCard } from "@/components/DitCard";
 import { GenerateForm } from "@/components/GenerateForm";
 import { dits } from "@/lib/dits";
+import { toPublic } from "@/lib/generated";
+import { currentOwner } from "@/lib/owner";
 import { getStore, storageReady } from "@/lib/storage";
 
 // Generated Dits land in storage, so the gallery is rendered per request.
@@ -12,9 +14,11 @@ function copySrc(url: string) {
 }
 
 export default async function Home() {
-  const generated = await getStore()
-    .list()
+  const owner = await currentOwner();
+  const saved = await getStore()
+    .listSaved()
     .catch(() => []);
+  const generated = saved.map((dit) => toPublic(dit, owner));
 
   // Generated Dits join the end of the same list as the originals.
   const gallery = [
@@ -24,13 +28,15 @@ export default async function Home() {
       description: dit.description,
       src: dit.file,
       copySrc: dit.file,
+      deletableId: undefined as string | undefined,
     })),
     ...generated.map((dit) => ({
       key: dit.id,
-      name: dit.prompt,
+      name: dit.description,
       description: new Date(dit.createdAt).toLocaleDateString(),
       src: dit.url,
       copySrc: copySrc(dit.url),
+      deletableId: dit.mine ? dit.id : undefined,
     })),
   ];
 
@@ -53,6 +59,7 @@ export default async function Home() {
             description={dit.description}
             src={dit.src}
             copySrc={dit.copySrc}
+            deletableId={dit.deletableId}
             priority={index === 0}
           />
         ))}
