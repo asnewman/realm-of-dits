@@ -1,4 +1,4 @@
-import { MAX_DESCRIPTION, toPublic } from "@/lib/generated";
+import { MAX_DESCRIPTION, MAX_NAME, toPublic } from "@/lib/generated";
 import { currentOwner } from "@/lib/owner";
 import { getStore } from "@/lib/storage";
 
@@ -25,29 +25,42 @@ async function ownDit(id: string) {
   return { owner, dit };
 }
 
-/** Saves a draft into the gallery, or edits the description of a saved Dit. */
+/** Saves a draft into the gallery, or edits the text of a saved Dit. */
 export async function PATCH(request: Request, { params }: Context) {
   const { id } = await params;
 
-  let description: unknown;
+  let body: { name?: unknown; description?: unknown };
   try {
-    ({ description } = await request.json());
+    body = await request.json();
   } catch {
-    return fail("Add a description", 400);
+    return fail("Add a name and a description", 400);
   }
 
+  const { name, description } = body;
+
+  if (typeof name !== "string" || !name.trim()) {
+    return fail("Add a name", 400);
+  }
+  if (name.trim().length > MAX_NAME) {
+    return fail(`Keep the name under ${MAX_NAME} characters`, 400);
+  }
   if (typeof description !== "string" || !description.trim()) {
     return fail("Add a description", 400);
   }
   if (description.trim().length > MAX_DESCRIPTION) {
-    return fail(`Keep it under ${MAX_DESCRIPTION} characters`, 400);
+    return fail(`Keep the description under ${MAX_DESCRIPTION} characters`, 400);
   }
 
   const { owner, dit } = await ownDit(id);
   if (!dit) return fail("That Dit is gone", 404);
 
-  const saved = { ...dit, description: description.trim(), draft: false };
-  await getStore().update(saved);
+  const saved = {
+    ...dit,
+    name: name.trim(),
+    description: description.trim(),
+    draft: false,
+  };
+  await getStore().publish(saved);
 
   return Response.json({ dit: toPublic(saved, owner) });
 }

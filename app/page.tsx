@@ -32,8 +32,10 @@ export default async function Home() {
     })),
     ...generated.map((dit) => ({
       key: dit.id,
-      name: dit.description,
-      description: new Date(dit.createdAt).toLocaleDateString(),
+      name: dit.name,
+      // Dits saved before descriptions existed fall back to their date.
+      description:
+        dit.description || new Date(dit.createdAt).toLocaleDateString(),
       src: dit.url,
       copySrc: copySrc(dit.url),
       deletableId: dit.mine ? dit.id : undefined,

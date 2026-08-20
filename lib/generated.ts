@@ -8,7 +8,8 @@
 export type StoredDit = {
   id: string;
   prompt: string;
-  /** Empty while the Dit is still a draft. Required to save. */
+  /** Both are empty while the Dit is a draft, and both are required to save. */
+  name: string;
   description: string;
   url: string;
   createdAt: string;
@@ -20,7 +21,17 @@ export type StoredDit = {
 /** What the browser is allowed to see. */
 export type PublicDit = Omit<StoredDit, "owner" | "draft"> & { mine: boolean };
 
-export const META_PREFIX = "dits/meta/";
+/**
+ * Draft and saved records live at different pathnames rather than sharing one
+ * that gets rewritten. Vercel caches blob content for up to a month and an
+ * overwrite takes up to a minute to propagate, so a rewritten record reads back
+ * stale — which used to hide a Dit the moment it was saved. The pathname is the
+ * state, and `list()` reads pathnames consistently.
+ */
+export const DRAFT_PREFIX = "dits/draft/";
+export const SAVED_PREFIX = "dits/saved/";
+/** Written by an earlier build that kept both states at one pathname. */
+export const LEGACY_META_PREFIX = "dits/meta/";
 export const IMAGE_PREFIX = "dits/img/";
 /**
  * One marker per generation, partitioned by day, so the daily cap counts money
@@ -29,6 +40,7 @@ export const IMAGE_PREFIX = "dits/img/";
  */
 export const SPEND_PREFIX = "dits/spend/";
 
+export const MAX_NAME = 60;
 export const MAX_DESCRIPTION = 120;
 
 export function dayKey(date = new Date()): string {

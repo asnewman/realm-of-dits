@@ -102,6 +102,7 @@ export async function POST(request: Request) {
       {
         id: crypto.randomUUID(),
         prompt: prompt.trim(),
+        name: "",
         description: "",
         url: "",
         createdAt: new Date().toISOString(),

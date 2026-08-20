@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { MAX_DESCRIPTION, type PublicDit } from "@/lib/generated";
+import { MAX_DESCRIPTION, MAX_NAME, type PublicDit } from "@/lib/generated";
 
 const MAX_PROMPT = 400;
 
@@ -13,6 +13,7 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
   const router = useRouter();
   const [prompt, setPrompt] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState<false | "generating" | "saving" | "discarding">(
     false,
@@ -42,7 +43,9 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
       }
 
       setDraft(body.dit);
-      // The prompt is the obvious first draft of a description.
+      // The prompt is the obvious first draft of a description. The name is
+      // left blank so it gets a deliberate short label rather than a sentence.
+      setName("");
       setDescription(prompt.trim().slice(0, MAX_DESCRIPTION));
     } catch {
       setError("The Dit didn't come out. Try again");
@@ -53,7 +56,7 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    if (busy || !draft || !description.trim()) return;
+    if (busy || !draft || !name.trim() || !description.trim()) return;
 
     setBusy("saving");
     setError(null);
@@ -62,7 +65,7 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
       const response = await fetch(`/api/dits/${draft.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description }),
+        body: JSON.stringify({ name, description }),
       });
       const body = await response.json().catch(() => ({}));
 
@@ -73,6 +76,7 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
 
       setDraft(null);
       setPrompt("");
+      setName("");
       setDescription("");
       router.refresh();
     } catch {
@@ -95,6 +99,7 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
       // is not worth blocking on.
     } finally {
       setDraft(null);
+      setName("");
       setDescription("");
       setBusy(false);
     }
@@ -114,6 +119,19 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
         </div>
 
         <div className="fields">
+          <label htmlFor="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            maxLength={MAX_NAME}
+            placeholder="Chef Dit"
+            required
+            autoFocus
+            onChange={(event) => setName(event.target.value)}
+            disabled={busy !== false}
+          />
+
           <label htmlFor="description">Description</label>
           <input
             id="description"
@@ -121,14 +139,17 @@ export function GenerateForm({ enabled }: { enabled: boolean }) {
             value={description}
             maxLength={MAX_DESCRIPTION}
             required
-            autoFocus
             onChange={(event) => setDescription(event.target.value)}
             disabled={busy !== false}
           />
+
           <p className="hint">This Dit isn&apos;t in the realm until you save it.</p>
 
           <div className="row">
-            <button type="submit" disabled={busy !== false || !description.trim()}>
+            <button
+              type="submit"
+              disabled={busy !== false || !name.trim() || !description.trim()}
+            >
               {busy === "saving" ? "Saving…" : "Save"}
             </button>
             <button

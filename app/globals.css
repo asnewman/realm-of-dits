@@ -318,9 +318,16 @@ main {
   min-width: 0;
 }
 
+.generate .fields label {
+  margin-top: 12px;
+}
+
+.generate .fields label:first-child {
+  margin-top: 0;
+}
+
 .generate .fields input {
   width: 100%;
-  margin-bottom: 10px;
 }
 
 .generate .fields .row {
